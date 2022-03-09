@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth as JWTAuth;
 
 class AuthController extends Controller
@@ -45,6 +46,7 @@ class AuthController extends Controller
     public function me()
     {
         $user = User::find(Auth::user()->id);
+        $user->logo = Storage::url($user->logo);
         
         return response()->json($user);
     }

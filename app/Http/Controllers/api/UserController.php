@@ -148,6 +148,7 @@ class UserController extends Controller
                     if(!empty($request->file('logo'))){
                         Storage::delete($oldLogo);
 
+                        //$user->logo = Storage::url($request->file('logo')->store('user'));
                         $user->logo = $request->file('logo')->store('user');
                         $user->save();
                     }
