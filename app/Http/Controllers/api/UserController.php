@@ -88,6 +88,10 @@ class UserController extends Controller
     {
         $user = User::where('slug', $slug)->get()->first();
 
+        $user->logo = Storage::temporaryUrl(
+            $user->logo, now()->addMinutes(5)
+        );
+
         return response()->json(!empty($user) ? $user : ['error' => 'Nenhum corretor encontrado.']);
     }
 
