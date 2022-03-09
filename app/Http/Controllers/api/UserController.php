@@ -159,6 +159,7 @@ class UserController extends Controller
             }
 
         }catch(\Exception $e){
+            dd($e);
             return response()->json(['error' => $e->errorInfo[2]], 422);
         }
         
