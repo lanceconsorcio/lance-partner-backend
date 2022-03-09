@@ -46,7 +46,9 @@ class AuthController extends Controller
     public function me()
     {
         $user = User::find(Auth::user()->id);
-        $user->logo = Storage::url($user->logo);
+        $user->logo = Storage::temporaryUrl(
+            $user->logo, now()->addMinutes(5)
+        );
         
         return response()->json($user);
     }
