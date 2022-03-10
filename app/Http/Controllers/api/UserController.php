@@ -53,8 +53,8 @@ class UserController extends Controller
             $user = $users->create($request->all());
            // $user->companies()->attach($request->company); // $users->companies()->sync(1,3); //Isso remove todas companies atribuidas ao usuario e coloca somente 1 e 3 atribuidas a ele
             
-           $companies[] = $request->company;
-           $user->companies()->sync($companies);
+        //    $companies[] = $request->company;
+        //    $user->companies()->sync($companies);
 
             return response()->json($user);
         }catch(\Exception $e){
