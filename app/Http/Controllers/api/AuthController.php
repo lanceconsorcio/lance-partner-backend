@@ -47,7 +47,7 @@ class AuthController extends Controller
     {
         $user = User::find(Auth::user()->id);
         
-        if($user->logo){
+        if($user->logo && env('FILESYSTEM_DRIVER') === "s3"){
             $user->logo = Storage::temporaryUrl(
                 $user->logo, now()->addMinutes(5)
             );

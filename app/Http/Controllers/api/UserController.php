@@ -71,9 +71,11 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);
-        $user->logo = Storage::temporaryUrl(
-            $user->logo, now()->addMinutes(5)
-        );
+        if($user->logo && env('FILESYSTEM_DRIVER') === "s3"){
+            $user->logo = Storage::temporaryUrl(
+                $user->logo, now()->addMinutes(5)
+            );
+        }
 
         return response()->json(!empty($user) ? $user : ['error' => 'Nenhum usuário encontrado.']);
     }
@@ -88,9 +90,11 @@ class UserController extends Controller
     {
         $user = User::where('slug', $slug)->get()->first();
 
-        $user->logo = Storage::temporaryUrl(
-            $user->logo, now()->addMinutes(5)
-        );
+        if($user->logo && env('FILESYSTEM_DRIVER') === "s3"){
+            $user->logo = Storage::temporaryUrl(
+                $user->logo, now()->addMinutes(5)
+            );
+        }
 
         return response()->json(!empty($user) ? $user : ['error' => 'Nenhum corretor encontrado.']);
     }
