@@ -120,6 +120,8 @@ class UserController extends Controller
 
                 $oldLogo = $user->logo;
 
+                $request->merge( ['password' => bcrypt($request->password)] );
+
                 if($user->update($request->all())){
 
                     if(!empty($request->file('logo'))){
@@ -157,6 +159,7 @@ class UserController extends Controller
 
                 if($user->update($request->all())){
                     if(!empty($request->file('logo'))){
+                        dd(Storage::disk());
                         Storage::delete($oldLogo);
 
                         //$user->logo = Storage::url($request->file('logo')->store('user'));
