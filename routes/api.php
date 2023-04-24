@@ -19,6 +19,10 @@ use Illuminate\Support\Facades\Route;
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('brokers/{user}', [UserController::class, 'display']);
 
+Route::get('/linkstorage', function () {
+    Artisan::call('storage:link');
+});
+
 Route::group(['middleware' => ['api.auth']], function(){
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);

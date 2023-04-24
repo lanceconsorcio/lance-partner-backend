@@ -71,6 +71,7 @@ class UserController extends Controller
     public function show($id)
     {
         $user = User::find($id);
+
         if($user->logo && env('FILESYSTEM_DRIVER') === "s3"){
             $user->logo = Storage::temporaryUrl(
                 $user->logo, now()->addMinutes(5)
@@ -90,10 +91,16 @@ class UserController extends Controller
     {
         $user = User::where('slug', $slug)->get()->first();
 
-        if($user->logo && env('FILESYSTEM_DRIVER') === "s3"){
-            $user->logo = Storage::temporaryUrl(
-                $user->logo, now()->addMinutes(5)
-            );
+        if($user){
+            if($user->logo){
+                $user->logo = asset('storage/'.$user->logo);//Storage::url($user->logo);
+            }
+
+            if($user->logo && env('FILESYSTEM_DRIVER') === "s3"){
+                $user->logo = Storage::temporaryUrl(
+                    $user->logo, now()->addMinutes(5)
+                );
+            }
         }
 
         return response()->json(!empty($user) ? $user : ['error' => 'Nenhum corretor encontrado.']);
@@ -159,7 +166,7 @@ class UserController extends Controller
 
                 if($user->update($request->all())){
                     if(!empty($request->file('logo'))){
-                        dd(Storage::disk());
+                        //dd(Storage::disk());
                         Storage::delete($oldLogo);
 
                         //$user->logo = Storage::url($request->file('logo')->store('user'));
