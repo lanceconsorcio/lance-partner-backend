@@ -31,8 +31,30 @@ class UserController extends Controller
                     ->orWhere( 'phone', $request->search);
             });
         }
+
+        if(!empty($request->start_date)){
+            $users->whereDate( 'created_at', ">=", $request->start_date);
+        }
+
+        if(!empty($request->end_date)){
+            $users->whereDate( 'created_at', "<=", $request->end_date);
+        }
             
-        $users =  $users->get();
+        // $users = $users->withCount('sums')->orderBy('sums_count', 'desc')->get();
+
+        // Filtra também as "sums" através do callback.
+        $users = $users->withCount([
+            'sums' => function($query) use ($request) {
+                if(!empty($request->start_date)){
+                    $query->whereDate('created_at', '>=', $request->start_date);
+                }
+                if(!empty($request->end_date)){
+                    $query->whereDate('created_at', '<=', $request->end_date);
+                }
+            }
+        ])
+        ->orderBy('sums_count', 'desc')
+        ->get();
 
         return response()->json($users);
     }

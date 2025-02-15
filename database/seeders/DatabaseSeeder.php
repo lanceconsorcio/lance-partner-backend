@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'wobetoberlitz'.'@gmail.com',
             'email_display' => 'wobetoberlitz'.'@gmail.com',
             'cnpj' => '28.099.840/0001-69',
+            'master' => true,
             'password' => Hash::make('Berlitz@206905'),
             'phone' => "(51) 99109-0700",
             'address' => "Rua dos pinheiros número 76",
