@@ -10,6 +10,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
@@ -73,14 +75,34 @@ class UserController extends Controller
 
         try{
             $user = $users->create($request->all());
-           // $user->companies()->attach($request->company); // $users->companies()->sync(1,3); //Isso remove todas companies atribuidas ao usuario e coloca somente 1 e 3 atribuidas a ele
             
-        //    $companies[] = $request->company;
-        //    $user->companies()->sync($companies);
+            $this->sendToSecondaryBackend($request);
 
             return response()->json($user);
         }catch(\Exception $e){
             return response()->json(['error' => $e->errorInfo[2]], 422);
+        }
+    }
+
+    /**
+     * Envia os dados do usuário para um backend secundário via HTTP POST
+     *
+     * @param array $userData
+     */
+    private function sendToSecondaryBackend(StoreUserRequest $request)
+    {
+        try {
+            // Token de serviço
+            $serviceToken = env('LANCE_API_TOKEN');
+            $partnerBackend = env('LANCE_API_URL');
+        
+            $secondaryApiUrl = $partnerBackend . 'gateway/savePartner';
+
+            $response = Http::withToken($serviceToken)->post($secondaryApiUrl, $request->all());
+            dd($response->json());
+        } catch (\Exception $e) {
+            throw $e;
+            //Log::error('Erro ao enviar dados para backend secundário: ' . $e->getMessage());
         }
     }
 

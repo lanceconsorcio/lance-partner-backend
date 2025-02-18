@@ -43,6 +43,9 @@ class StoreUserRequest extends FormRequest
             'phone' => ['required', 'unique:users', 'regex:/^\(?[1-9]{2}\)? ?(?:[2-8]|9[1-9])[0-9]{3}\-?[0-9]{4}$/'],
             'password' => ['required', 'min:8', 'regex:/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\W]).*$/'],
 
+            'color' => 'nullable|min:3',
+            'second_color' => 'nullable|min:3',
+
             'logo' => 'file|max:2048|mimetypes:image/jpeg,image/png,',
         ];
     }
