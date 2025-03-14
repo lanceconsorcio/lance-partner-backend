@@ -78,7 +78,7 @@ class UserController extends Controller
             
             $this->sendToSecondaryBackend($request);
 
-            return response()->json($user);
+            return response()->json(['success' => 'Cadastro criado com sucesso!']);
         }catch(\Exception $e){
             return response()->json(['error' => $e->errorInfo[2]], 422);
         }
@@ -99,7 +99,8 @@ class UserController extends Controller
             $secondaryApiUrl = $partnerBackend . 'gateway/savePartner';
 
             $response = Http::withToken($serviceToken)->post($secondaryApiUrl, $request->all());
-            dd($response->json());
+
+            return $response->json()
         } catch (\Exception $e) {
             throw $e;
             //Log::error('Erro ao enviar dados para backend secundário: ' . $e->getMessage());
