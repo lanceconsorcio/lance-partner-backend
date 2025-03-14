@@ -25,38 +25,38 @@ class UserController extends Controller
     {
         $users = new User();
 
-        if(!empty($request->search)){
-            $users->where( function($or) use ($request){
-                $or->orWhere( 'name', 'like', "%{$request->search}%" )
-                    ->orWhere( 'last_name', 'like', "%{$request->search}%" )
-                    ->orWhere( 'email', $request->search)
-                    ->orWhere( 'phone', $request->search);
+        if (!empty($request->search)) {
+            $users->where(function ($or) use ($request) {
+                $or->orWhere('name', 'like', "%{$request->search}%")
+                    ->orWhere('last_name', 'like', "%{$request->search}%")
+                    ->orWhere('email', $request->search)
+                    ->orWhere('phone', $request->search);
             });
         }
 
-        if(!empty($request->start_date)){
-            $users->whereDate( 'created_at', ">=", $request->start_date);
+        if (!empty($request->start_date)) {
+            $users->whereDate('created_at', ">=", $request->start_date);
         }
 
-        if(!empty($request->end_date)){
-            $users->whereDate( 'created_at', "<=", $request->end_date);
+        if (!empty($request->end_date)) {
+            $users->whereDate('created_at', "<=", $request->end_date);
         }
-            
+
         // $users = $users->withCount('sums')->orderBy('sums_count', 'desc')->get();
 
         // Filtra também as "sums" através do callback.
         $users = $users->withCount([
-            'sums' => function($query) use ($request) {
-                if(!empty($request->start_date)){
+            'sums' => function ($query) use ($request) {
+                if (!empty($request->start_date)) {
                     $query->whereDate('created_at', '>=', $request->start_date);
                 }
-                if(!empty($request->end_date)){
+                if (!empty($request->end_date)) {
                     $query->whereDate('created_at', '<=', $request->end_date);
                 }
             }
         ])
-        ->orderBy('sums_count', 'desc')
-        ->get();
+            ->orderBy('sums_count', 'desc')
+            ->get();
 
         return response()->json($users);
     }
@@ -69,17 +69,17 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $request->merge( ['password' => bcrypt($request->password)] );
+        $request->merge(['password' => bcrypt($request->password)]);
 
         $users = new User;
 
-        try{
+        try {
             $user = $users->create($request->all());
-            
+
             $this->sendToSecondaryBackend($request);
 
             return response()->json(['success' => 'Cadastro criado com sucesso!']);
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json(['error' => $e->errorInfo[2]], 422);
         }
     }
@@ -95,12 +95,12 @@ class UserController extends Controller
             // Token de serviço
             $serviceToken = env('LANCE_API_TOKEN');
             $partnerBackend = env('LANCE_API_URL');
-        
+
             $secondaryApiUrl = $partnerBackend . 'gateway/savePartner';
 
             $response = Http::withToken($serviceToken)->post($secondaryApiUrl, $request->all());
 
-            return $response->json()
+            return $response->json();
         } catch (\Exception $e) {
             throw $e;
             //Log::error('Erro ao enviar dados para backend secundário: ' . $e->getMessage());
@@ -117,9 +117,10 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        if($user->logo && env('FILESYSTEM_DRIVER') === "s3"){
+        if ($user->logo && env('FILESYSTEM_DRIVER') === "s3") {
             $user->logo = Storage::temporaryUrl(
-                $user->logo, now()->addMinutes(5)
+                $user->logo,
+                now()->addMinutes(5)
             );
         }
 
@@ -136,14 +137,15 @@ class UserController extends Controller
     {
         $user = User::where('slug', $slug)->get()->first();
 
-        if($user){
-            if($user->logo){
-                $user->logo = asset('storage/'.$user->logo);//Storage::url($user->logo);
+        if ($user) {
+            if ($user->logo) {
+                $user->logo = asset('storage/' . $user->logo); //Storage::url($user->logo);
             }
 
-            if($user->logo && env('FILESYSTEM_DRIVER') === "s3"){
+            if ($user->logo && env('FILESYSTEM_DRIVER') === "s3") {
                 $user->logo = Storage::temporaryUrl(
-                    $user->logo, now()->addMinutes(5)
+                    $user->logo,
+                    now()->addMinutes(5)
                 );
             }
         }
@@ -160,23 +162,23 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, $id)
     {
-        try{
-            if($user = User::find($id)){
-                if($user->role < Auth::user()->role){
+        try {
+            if ($user = User::find($id)) {
+                if ($user->role < Auth::user()->role) {
                     return response()->json(['status' => 'Você não pode editar um usuário com cargo superior.'], 403);
                 }
 
-                if($user->id === Auth::user()->id){
+                if ($user->id === Auth::user()->id) {
                     return response()->json(['status' => 'Você não pode editar suas informações desta maneira'], 403);
                 }
 
                 $oldLogo = $user->logo;
 
-                $request->merge( ['password' => bcrypt($request->password)] );
+                $request->merge(['password' => bcrypt($request->password)]);
 
-                if($user->update($request->all())){
+                if ($user->update($request->all())) {
 
-                    if(!empty($request->file('logo'))){
+                    if (!empty($request->file('logo'))) {
                         //dd($user->logo);
                         Storage::delete($oldLogo);
 
@@ -187,14 +189,12 @@ class UserController extends Controller
                     //return response()->json(['sucesso' => 'Usuário atualizado com sucesso!']);
                     return response()->json($user);
                 }
-            }else{
+            } else {
                 return response()->json(['error' => 'Usuário não encontrado.']);
             }
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return response()->json(['error' => $e->errorInfo[2]], 422);
         }
-        
     }
 
     /**
@@ -205,12 +205,12 @@ class UserController extends Controller
      */
     public function self(SelfUserRequest $request)
     {
-        try{
-            if($user = User::find(Auth::user()->id)){
+        try {
+            if ($user = User::find(Auth::user()->id)) {
                 $oldLogo = $user->logo;
 
-                if($user->update($request->all())){
-                    if(!empty($request->file('logo'))){
+                if ($user->update($request->all())) {
+                    if (!empty($request->file('logo'))) {
                         //dd(Storage::disk());
                         Storage::delete($oldLogo);
 
@@ -218,18 +218,16 @@ class UserController extends Controller
                         $user->logo = $request->file('logo')->store('user');
                         $user->save();
                     }
-                    
+
                     return response()->json($user);
                 }
-            }else{
+            } else {
                 return response()->json(['error' => 'Você mesmo não foi encontrado, isso está estranho...']);
             }
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             dd($e);
             return response()->json(['error' => $e->errorInfo[2]], 422);
         }
-        
     }
 
     /**
@@ -240,15 +238,15 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        if($user = User::find($id)){
+        if ($user = User::find($id)) {
             $image = $user->image;
 
-            if($user->delete()){
+            if ($user->delete()) {
                 Storage::delete($image);
 
                 return response()->json(['success' => 'Usuário removido com sucesso!']);
             }
-        }else{
+        } else {
             return response()->json(['error' => 'Usuário não encontrado!']);
         }
     }
