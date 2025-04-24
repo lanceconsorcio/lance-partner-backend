@@ -12,7 +12,8 @@ use Illuminate\Validation\Rule;
 
 class UpdateUserRequest extends FormRequest
 {
-    protected function failedValidation(Validator $validator) {
+    protected function failedValidation(Validator $validator)
+    {
         throw new HttpResponseException(response()->json($validator->errors(), 422));
     }
 
@@ -37,18 +38,19 @@ class UpdateUserRequest extends FormRequest
             'slug' => 'nullable|min:3|unique:users',
             'name' => 'nullable|min:3|unique:users',
             'name_display' => 'nullable|min:3',
-            'cnpj'=> ['nullable', 'unique:users','regex:/([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})/'],
+            'cnpj' => ['nullable', 'unique:users', 'regex:/([0-9]{2}[\.]?[0-9]{3}[\.]?[0-9]{3}[\/]?[0-9]{4}[-]?[0-9]{2})|([0-9]{3}[\.]?[0-9]{3}[\.]?[0-9]{3}[-]?[0-9]{2})/'],
             'email' => 'nullable|unique:users|email',
             'email_display' => 'nullable|min:3',
             'address' => 'nullable|min:3',
             'phone' => ['nullable', 'unique:users', 'regex:/^\(?[1-9]{2}\)? ?(?:[2-8]|9[1-9])[0-9]{3}\-?[0-9]{4}$/'],
-            'password' => ['nullable','min:8','regex:/^(?=.*[A-Z])(?=.*[!@#$&*])(?=.*[0-9].*[0-9])(?=.*[a-z].*[a-z].*[a-z])/'],
+            'password' => ['nullable', 'min:8'],
 
             'logo' => 'file|max:2048|mimetypes:image/jpeg,image/png,',
         ];
     }
 
-    public function messages(){
+    public function messages()
+    {
         return [
             'email.email' => 'Por favor, informe um endereço de e-mail válido',
             'password.min' => 'A senha precisa conter no mínimo 8 caracteres.',
